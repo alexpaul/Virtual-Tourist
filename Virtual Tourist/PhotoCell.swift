@@ -10,17 +10,12 @@ import UIKit
 
 class PhotoCell: UICollectionViewCell {
     
-    var noImagesLabel: UILabel!
     var placeholderImageView: UIImageView!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        // No Images Label
-        self.noImagesLabel = UILabel(frame: CGRectMake(0, 0, 0, 0))
-        self.noImagesLabel.text = "No Images"
-        self.noImagesLabel.hidden = true
-        self.addSubview(self.noImagesLabel)
+        self.backgroundColor = UIColor.lightGrayColor()
         
         // Placeholder Image View 
         self.placeholderImageView = UIImageView(frame: frame)
