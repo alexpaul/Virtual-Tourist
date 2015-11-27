@@ -18,10 +18,10 @@ class VTActivityView: UIView {
         
         super.init(frame: frame)
         
-        let activityViewSize = CGSizeMake(100, 100)
-        self.frame = CGRectMake(0, 0, windowFrame.width, windowFrame.height)
+        let activityViewSize = CGSizeMake(frame.width, frame.height)
+        self.frame = CGRectMake(0, 0, frame.width, frame.height)
         
-        self.activityIndicatorView = UIActivityIndicatorView(frame: CGRectMake(windowFrame.width / 2 - (activityViewSize.width / 2), windowFrame.height / 2 - (activityViewSize.height / 2), activityViewSize.width, activityViewSize.height))
+        self.activityIndicatorView = UIActivityIndicatorView(frame: CGRectMake(frame.width / 2 - (activityViewSize.width / 2), frame.height / 2 - (activityViewSize.height / 2), activityViewSize.width, activityViewSize.height))
         self.activityIndicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.WhiteLarge
         self.activityIndicatorView.color = UIColor.whiteColor()
         

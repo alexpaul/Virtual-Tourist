@@ -5,6 +5,10 @@
 //  Created by Alex Paul on 11/8/15.
 //  Copyright © 2015 Alex Paul. All rights reserved.
 //
+//  
+//  This app allows users to specify travel locations around the world, and create
+//  virtual photo albums for each location. The locations and photo albums will
+//  be stored in Core Data.
 
 import UIKit
 

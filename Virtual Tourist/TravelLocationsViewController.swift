@@ -5,24 +5,33 @@
 //  Created by Alex Paul on 11/14/15.
 //  Copyright © 2015 Alex Paul. All rights reserved.
 //
+//  Allows the user to drop pins around the world
 
 import UIKit
 import MapKit
 
 class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     
+    let MIN_PRESS_DURATION = 0.3
+    
     var mapView: MKMapView!
-    var vtActivityView = VTActivityView()
+    
     var photoAlbumViewController: PhotoAlbumViewController!
     
     var latitude: Double!
     var longitude: Double!
     var latitudeDelta: Double!
     var longitudeDelta: Double!
+    
     var span: MKCoordinateSpan!
     var center: CLLocationCoordinate2D!
+    
     var longPressGestureRecognizer: UILongPressGestureRecognizer!
     
+    var selectedPinCoordinate: CLLocationCoordinate2D!
+    var selectedPin: Pin!
+    
+    var pins = [Pin]()
     var annotations = [MKPointAnnotation]()
     
     override func loadView() {
@@ -57,7 +66,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         }
         
         self.longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "addPinToMapView:")
-        self.longPressGestureRecognizer.minimumPressDuration = 0.3
+        self.longPressGestureRecognizer.minimumPressDuration = MIN_PRESS_DURATION
         self.mapView.addGestureRecognizer(self.longPressGestureRecognizer)
     }
     
@@ -89,7 +98,11 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         
+        //let coordinate = view.annotation?.coordinate
+        
         self.photoAlbumViewController = PhotoAlbumViewController()
+        self.photoAlbumViewController.coordinate = self.selectedPinCoordinate
+        self.photoAlbumViewController.pin = self.selectedPin
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "Ok", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
             self.navigationController?.pushViewController(self.photoAlbumViewController, animated: true)
@@ -105,22 +118,26 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     }
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
-        print("didSelectAnnotationView")
+        self.selectedPinCoordinate = view.annotation?.coordinate
+        for pin in self.pins {
+            if pin.annotation == view.annotation as! MKPointAnnotation {
+                print("coordinate is \(pin.annotation.coordinate)")
+                print("pin has \(pin.photos.count) photos")
+                self.selectedPin = pin
+            }
+        }
     }
     
     func mapViewWillStartLoadingMap(mapView: MKMapView) {
         print("mapViewWillStartLoadingMap")
-        self.vtActivityView.activityIndicatorView.startAnimating()
     }
     
     func mapViewDidFinishLoadingMap(mapView: MKMapView) {
         print("mapViewDidFinishLoadingMap")
-        self.vtActivityView.activityIndicatorView.stopAnimating()
     }
     
     func mapViewDidFailLoadingMap(mapView: MKMapView, withError error: NSError) {
         print("mapViewDidFailLoadingMap")
-        self.vtActivityView.activityIndicatorView.stopAnimating()
     }
     
     func mapView(mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
@@ -152,11 +169,20 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
-        annotation.title = "\(coordinate.latitude), \(coordinate.longitude)"
-        //annotation.subtitle = ""
         
-        // Add to Annotations Array
         self.annotations.append(annotation)
+        
+        VTFlickrService().fectchPhotosForCoordinate(coordinate) { (success, photos, error) -> Void in
+            if success {
+                let pin = Pin()
+                pin.photos = photos as! [Photo]
+                annotation.title = "\(pin.photos.count) photos"
+                pin.annotation = annotation
+                self.pins.append(pin)
+            }else {
+                print("Error - \(error)")
+            }
+        }
         
         // Update Map View 
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
