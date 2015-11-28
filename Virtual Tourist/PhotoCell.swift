@@ -31,13 +31,13 @@ class PhotoCell: UICollectionViewCell {
         self.backgroundColor = UIColor.lightGrayColor()
         
         // Image View
-        self.imageView = UIImageView(frame: frame)
+        self.imageView = UIImageView(frame: CGRectMake(0, 0, self.frame.width, self.frame.height))
         self.addSubview(self.imageView)
         
         // Placeholder Image View 
         
         // Activity View 
-        self.activityView = VTActivityView(frame: frame)
+        self.activityView = VTActivityView(frame: CGRectMake(0, 0, self.frame.width, self.frame.height))
         self.addSubview(self.activityView)
         
     }
