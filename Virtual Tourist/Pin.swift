@@ -11,8 +11,8 @@ import MapKit
 
 class Pin {
     
-    //var coordinate: CLLocationCoordinate2D!
-    var photos = [Photo]() // An Array of Flickr Photos
-    var annotation: MKPointAnnotation!
+    var photos = [Photo]() // Flickr Photos
+    var latitude: CLLocationDegrees!
+    var longitude: CLLocationDegrees!
     
 }

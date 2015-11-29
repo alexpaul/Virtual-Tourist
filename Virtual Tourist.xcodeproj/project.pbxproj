@@ -22,6 +22,7 @@
 		C467D9311BFABA0A0034B288 /* VTFlickrService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C467D9301BFABA0A0034B288 /* VTFlickrService.swift */; settings = {ASSET_TAGS = (); }; };
 		C467D9331BFCAE7A0034B288 /* VTSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C467D9321BFCAE7A0034B288 /* VTSingleton.swift */; settings = {ASSET_TAGS = (); }; };
 		C467D9351BFCAEEF0034B288 /* VTImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C467D9341BFCAEEF0034B288 /* VTImageService.swift */; settings = {ASSET_TAGS = (); }; };
+		C493378D1C0B31BF00CF8767 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C493378B1C0B31BF00CF8767 /* Model.xcdatamodeld */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 		C467D9301BFABA0A0034B288 /* VTFlickrService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VTFlickrService.swift; sourceTree = "<group>"; };
 		C467D9321BFCAE7A0034B288 /* VTSingleton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VTSingleton.swift; sourceTree = "<group>"; };
 		C467D9341BFCAEEF0034B288 /* VTImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VTImageService.swift; sourceTree = "<group>"; };
+		C493378C1C0B31BF00CF8767 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +104,7 @@
 			isa = PBXGroup;
 			children = (
 				C467D8FF1BF76B0D0034B288 /* CoreDataStackManager.swift */,
+				C493378B1C0B31BF00CF8767 /* Model.xcdatamodeld */,
 				C467D90E1BFA0E9C0034B288 /* Pin.swift */,
 				C467D9101BFA0EAA0034B288 /* Photo.swift */,
 			);
@@ -208,6 +211,7 @@
 				C467D8FB1BF7528A0034B288 /* TravelLocationsViewController.swift in Sources */,
 				C467D9351BFCAEEF0034B288 /* VTImageService.swift in Sources */,
 				C467D9311BFABA0A0034B288 /* VTFlickrService.swift in Sources */,
+				C493378D1C0B31BF00CF8767 /* Model.xcdatamodeld in Sources */,
 				C467D8FE1BF758A00034B288 /* PhotoAlbumViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -355,6 +359,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		C493378B1C0B31BF00CF8767 /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				C493378C1C0B31BF00CF8767 /* Model.xcdatamodel */,
+			);
+			currentVersion = C493378C1C0B31BF00CF8767 /* Model.xcdatamodel */;
+			path = Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 57E4E8011BEF7E6D001B5670 /* Project object */;
 }

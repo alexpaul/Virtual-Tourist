@@ -11,13 +11,6 @@ import UIKit
 
 class Constants {
     
-    var pinAnnotionsArrayURL: NSURL {
-        let filename = "pinAnnotationsArray"
-        let documentsDirectoryURL: NSURL = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
-        
-        return documentsDirectoryURL.URLByAppendingPathComponent(filename)
-    }
-    
     static let navigationBarHeight: CGFloat = 44
     static let statusBarHeight: CGFloat = 20
     static let tabBarHeight: CGFloat = 49
@@ -32,7 +25,7 @@ class Constants {
         static let RADIUS = "5"
         static let ACCURACY = "accuracy"
         static let PER_PAGE = "21" // default is 250 for "Search"
-        //static let PAGE = "1" // default is 1
+        static let PAGE = "1" // default is 1
     }
     
     struct REGION_KEYS {

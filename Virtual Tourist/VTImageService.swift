@@ -25,7 +25,6 @@ class VTImageService {
                 completionHandler(imageData: nil, error: downloadError)
             }
             completionHandler(imageData: data, error: nil)
-            print("fetched image for url is \(UIImage(data: data!))")
         }
         task.resume()
         

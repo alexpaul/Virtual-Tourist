@@ -12,6 +12,15 @@ class VTSingleton {
     
     // MARK: Shared Instance
     
+    var currentPageNumber: Int = 1 {
+        willSet(newPageNumber){
+            print("willSet - new page number is \(newPageNumber)")
+        }
+        didSet(oldPageNumber){
+            print("didSet - old number is \(oldPageNumber)")
+        }
+    }
+    
     class func sharedInstance() -> VTSingleton {
         
         struct Singleton {
@@ -52,6 +61,12 @@ class VTSingleton {
                 }
             })
         }
+    }
+    
+    func pathForFileName(fileName: String) -> String {
+        let documentsDirectoryURL: NSURL = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
+        let fullURL = documentsDirectoryURL.URLByAppendingPathComponent(fileName)
+        return fullURL.path!
     }
 
 }

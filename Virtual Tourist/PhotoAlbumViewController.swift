@@ -20,9 +20,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     var mapContainerView: UIView!
     var layout: UICollectionViewFlowLayout!
     var coordinate: CLLocationCoordinate2D?
-    var annotation: MKPointAnnotation!
     var pin: Pin!
-
+    
+    // MARK: - View Life Cycle
     
     override func loadView() {
         super.loadView()
@@ -82,12 +82,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         
         self.collectionView.delegate = self
         self.collectionView.dataSource = self
-        
-        var count = 1
-        for result in pin.photos {
-            print("\(count). \(result.urlString)")
-            count++
-        }
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        //VTSingleton.sharedInstance().currentPageNumber = 1
     }
     
     // MARK: - Collection View Datasource Methods
@@ -130,14 +129,30 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         }
     }
     
-    // MARK: - Collection View Delegate Methods
-    
     // MARK: - Actions
     
     func newCollectionButtonPressed() {
         print("newCollectionButtonPressed")
         
-        self.collectionView.reloadData()
+        // Increment Page Number
+        VTSingleton.sharedInstance().currentPageNumber++
+        
+        // Do a New Page Search
+        VTFlickrService().fetchPhotosForCoordinate(self.coordinate!) { (success, photos, error) -> Void in
+            if error != nil {
+                print("Error - \(error)")
+            }
+            if success {
+                
+                if let newPhotos = photos {
+                    self.pin = Pin()
+                    self.pin.photos = newPhotos as! [Photo]
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        self.collectionView.reloadData()
+                    })
+                }
+            }
+        }
     }
     
     // MARK: - Collection View Flow Layout Delegate Methods

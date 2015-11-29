@@ -28,8 +28,8 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     
     var longPressGestureRecognizer: UILongPressGestureRecognizer!
     
-    var selectedPinCoordinate: CLLocationCoordinate2D!
-    var selectedPin: Pin!
+    //var selectedPinCoordinate: CLLocationCoordinate2D!
+    //var selectedPin: Pin!
     
     var pins = [Pin]()
     var annotations = [MKPointAnnotation]()
@@ -96,19 +96,6 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         return pinView
     }
     
-    func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        
-        //let coordinate = view.annotation?.coordinate
-        
-        self.photoAlbumViewController = PhotoAlbumViewController()
-        self.photoAlbumViewController.coordinate = self.selectedPinCoordinate
-        self.photoAlbumViewController.pin = self.selectedPin
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
-            self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "Ok", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
-            self.navigationController?.pushViewController(self.photoAlbumViewController, animated: true)
-        }
-    }
-    
     func mapView(mapView: MKMapView, didAddAnnotationViews views: [MKAnnotationView]) {
         print("didAddAnnotationViews")
     }
@@ -118,12 +105,20 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     }
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
-        self.selectedPinCoordinate = view.annotation?.coordinate
+        
+        print("didSelectAnnotationView")
+        
+        self.photoAlbumViewController = PhotoAlbumViewController()
+        self.photoAlbumViewController.coordinate = view.annotation?.coordinate
+        
         for pin in self.pins {
-            if pin.annotation == view.annotation as! MKPointAnnotation {
-                print("coordinate is \(pin.annotation.coordinate)")
-                print("pin has \(pin.photos.count) photos")
-                self.selectedPin = pin
+            let pinCoordinate = CLLocationCoordinate2DMake(pin.latitude, pin.longitude)
+            if (pinCoordinate.latitude == view.annotation!.coordinate.latitude) && (pinCoordinate.longitude == view.annotation!.coordinate.longitude) {
+                self.photoAlbumViewController.pin = pin
+                dispatch_async(dispatch_get_main_queue()) { () -> Void in
+                    self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "Ok", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+                    self.navigationController?.pushViewController(self.photoAlbumViewController, animated: true)
+                }
             }
         }
     }
@@ -172,12 +167,20 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         
         self.annotations.append(annotation)
         
-        VTFlickrService().fectchPhotosForCoordinate(coordinate) { (success, photos, error) -> Void in
+        VTFlickrService().fetchPhotosForCoordinate(coordinate) { (success, photos, error) -> Void in
             if success {
                 let pin = Pin()
+                
+                // Set Pin's Photos
                 pin.photos = photos as! [Photo]
+                
                 annotation.title = "\(pin.photos.count) photos"
-                pin.annotation = annotation
+                
+                // Set Lat and Lon for Pin 
+                pin.latitude = annotation.coordinate.latitude
+                pin.longitude = annotation.coordinate.longitude
+                
+                //pin.annotation = annotation
                 self.pins.append(pin)
             }else {
                 print("Error - \(error)")

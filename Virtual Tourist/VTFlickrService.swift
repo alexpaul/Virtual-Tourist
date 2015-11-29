@@ -14,7 +14,7 @@ class VTFlickrService {
     let session = NSURLSession.sharedSession()
     var photos = [Photo]()
     
-    func fectchPhotosForCoordinate(coordinate: CLLocationCoordinate2D, completionHandler: (success: Bool, photos: AnyObject!, error: ErrorType!) -> Void){
+    func fetchPhotosForCoordinate(coordinate: CLLocationCoordinate2D, completionHandler: (success: Bool, photos: AnyObject!, error: ErrorType!) -> Void){
         
         let method = "flickr.photos.search"
         let methodArguments = [ "method" : method,
@@ -24,6 +24,7 @@ class VTFlickrService {
                                 "extras" : Constants.FLICKR_KEYS.EXTRAS,
                                 "radius" : Constants.FLICKR_KEYS.RADIUS,
                                 "per_page" : Constants.FLICKR_KEYS.PER_PAGE,
+                                "page" : VTSingleton.sharedInstance().currentPageNumber,  // default is 1
                                 "lat" : coordinate.latitude as Double,
                                 "lon": coordinate.longitude as Double ]
         
