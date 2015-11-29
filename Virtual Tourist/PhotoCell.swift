@@ -23,8 +23,6 @@ class PhotoCell: UICollectionViewCell {
         }
     }
     
-    // TODO: Create a Placeholder Image 
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -32,10 +30,9 @@ class PhotoCell: UICollectionViewCell {
         
         // Image View
         self.imageView = UIImageView(frame: CGRectMake(0, 0, self.frame.width, self.frame.height))
+        self.imageView.image = UIImage(named: "placeholder")
         self.addSubview(self.imageView)
-        
-        // Placeholder Image View 
-        
+                
         // Activity View 
         self.activityView = VTActivityView(frame: CGRectMake(0, 0, self.frame.width, self.frame.height))
         self.addSubview(self.activityView)

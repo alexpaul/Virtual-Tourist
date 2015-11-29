@@ -12,15 +12,19 @@ import MapKit
 
 class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    //var photos = [Photo]()
     var collectionView: UICollectionView!
     var newCollectionButton: UIButton!
     var noImagesLabel: UILabel!
     var bottomBarContainerView: UIView!
-    var mapContainerView: UIView!
     var layout: UICollectionViewFlowLayout!
     var coordinate: CLLocationCoordinate2D?
     var pin: Pin!
+    var mapView: MKMapView!
+    var region: MKCoordinateRegion!
+    var annotation: MKPointAnnotation!
+    
+    // Contorllers 
+    var imageDetailViewController: ImageDetailViewController!
     
     // MARK: - View Life Cycle
     
@@ -28,13 +32,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         super.loadView()
         
         self.view.backgroundColor = UIColor.whiteColor()
-                
-        // Map Container View 
-        let mapContainerViewSize = CGSize(width: self.view.frame.width, height: 120)
-        let mapContainerViewPoint = CGPoint(x: 0, y: Constants.statusBarHeight + Constants.navigationBarHeight)
-        self.mapContainerView = UIView(frame: CGRectMake(mapContainerViewPoint.x, mapContainerViewPoint.y, mapContainerViewSize.width, mapContainerViewSize.height))
-        self.mapContainerView.backgroundColor = UIColor.yellowColor()
-        self.view.addSubview(self.mapContainerView)
+        
+        // Map View
+        let mapViewSize = CGSize(width: self.view.frame.width, height: 120)
+        let mapViewPoint = CGPoint(x: 0, y: Constants.statusBarHeight + Constants.navigationBarHeight)
+        self.mapView = MKMapView(frame: CGRectMake(mapViewPoint.x, mapViewPoint.y, mapViewSize.width, mapViewSize.height))
+        self.view.addSubview(self.mapView)
 
         // Photos Collection View
         self.layout = UICollectionViewFlowLayout()
@@ -43,8 +46,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         layout.minimumLineSpacing = 4
         layout.scrollDirection = UICollectionViewScrollDirection.Vertical
         
-        let yPointForCollectionView = Constants.statusBarHeight + Constants.navigationBarHeight + self.mapContainerView.frame.height
-        let heightForCollectionView = self.view.frame.height - (Constants.statusBarHeight + Constants.navigationBarHeight + mapContainerView.frame.height + Constants.tabBarHeight)//(yPointForCollectionView + Constants.tabBarHeight)
+        let yPointForCollectionView = Constants.statusBarHeight + Constants.navigationBarHeight + self.mapView.frame.height
+        let heightForCollectionView = self.view.frame.height - (Constants.statusBarHeight + Constants.navigationBarHeight + mapView.frame.height + Constants.tabBarHeight)
         self.collectionView = UICollectionView(frame: CGRectMake(0, yPointForCollectionView, self.view.frame.width, heightForCollectionView), collectionViewLayout: layout)
         self.collectionView.backgroundColor = UIColor.whiteColor()
         self.collectionView.registerClass(PhotoCell.classForCoder(), forCellWithReuseIdentifier: "PhotoCell")
@@ -80,13 +83,13 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         
         if self.pin.photos.count == 0 {self.noImagesLabel.hidden = false}
         
+        // Setup the Map View
+        self.mapView.region = self.region
+        self.mapView.addAnnotation(self.annotation)
+        self.mapView.userInteractionEnabled = false
+        
         self.collectionView.delegate = self
         self.collectionView.dataSource = self
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        //VTSingleton.sharedInstance().currentPageNumber = 1
     }
     
     // MARK: - Collection View Datasource Methods
@@ -127,6 +130,19 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
             })
             photoCell.taskToCancelifCellIsReused = task
         }
+    }
+    
+    // MARK: - Collection View Delegate Methods 
+    
+    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+        collectionView.deselectItemAtIndexPath(indexPath, animated: true)
+        
+        let photo = self.pin.photos[indexPath.row]
+    
+        self.imageDetailViewController = ImageDetailViewController()
+        self.imageDetailViewController.image = photo.image
+        
+        self.navigationController?.pushViewController(self.imageDetailViewController, animated: false)
     }
     
     // MARK: - Actions

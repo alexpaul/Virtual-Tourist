@@ -23,6 +23,7 @@
 		C467D9331BFCAE7A0034B288 /* VTSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C467D9321BFCAE7A0034B288 /* VTSingleton.swift */; settings = {ASSET_TAGS = (); }; };
 		C467D9351BFCAEEF0034B288 /* VTImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C467D9341BFCAEEF0034B288 /* VTImageService.swift */; settings = {ASSET_TAGS = (); }; };
 		C493378D1C0B31BF00CF8767 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C493378B1C0B31BF00CF8767 /* Model.xcdatamodeld */; settings = {ASSET_TAGS = (); }; };
+		C493378F1C0BBA0000CF8767 /* ImageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C493378E1C0BBA0000CF8767 /* ImageDetailViewController.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,7 @@
 		C467D9321BFCAE7A0034B288 /* VTSingleton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VTSingleton.swift; sourceTree = "<group>"; };
 		C467D9341BFCAEEF0034B288 /* VTImageService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VTImageService.swift; sourceTree = "<group>"; };
 		C493378C1C0B31BF00CF8767 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		C493378E1C0BBA0000CF8767 /* ImageDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageDetailViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +118,7 @@
 			children = (
 				C467D8FA1BF7528A0034B288 /* TravelLocationsViewController.swift */,
 				C467D8FD1BF758A00034B288 /* PhotoAlbumViewController.swift */,
+				C493378E1C0BBA0000CF8767 /* ImageDetailViewController.swift */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -209,6 +212,7 @@
 				C467D9071BF76FE40034B288 /* VTActivityView.swift in Sources */,
 				C467D9091BF8A8400034B288 /* Constants.swift in Sources */,
 				C467D8FB1BF7528A0034B288 /* TravelLocationsViewController.swift in Sources */,
+				C493378F1C0BBA0000CF8767 /* ImageDetailViewController.swift in Sources */,
 				C467D9351BFCAEEF0034B288 /* VTImageService.swift in Sources */,
 				C467D9311BFABA0A0034B288 /* VTFlickrService.swift in Sources */,
 				C493378D1C0B31BF00CF8767 /* Model.xcdatamodeld in Sources */,

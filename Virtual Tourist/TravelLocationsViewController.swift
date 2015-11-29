@@ -23,13 +23,13 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     var latitudeDelta: Double!
     var longitudeDelta: Double!
     
+    var annotation: MKPointAnnotation!
+    
     var span: MKCoordinateSpan!
     var center: CLLocationCoordinate2D!
     
     var longPressGestureRecognizer: UILongPressGestureRecognizer!
     
-    //var selectedPinCoordinate: CLLocationCoordinate2D!
-    //var selectedPin: Pin!
     
     var pins = [Pin]()
     var annotations = [MKPointAnnotation]()
@@ -110,6 +110,8 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         
         self.photoAlbumViewController = PhotoAlbumViewController()
         self.photoAlbumViewController.coordinate = view.annotation?.coordinate
+        self.photoAlbumViewController.region = self.mapView.region
+        self.photoAlbumViewController.annotation = self.annotation
         
         for pin in self.pins {
             let pinCoordinate = CLLocationCoordinate2DMake(pin.latitude, pin.longitude)
@@ -162,7 +164,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         
         print("coordinate is \(coordinate)")
         
-        let annotation = MKPointAnnotation()
+        self.annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         
         self.annotations.append(annotation)
@@ -174,11 +176,11 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
                 // Set Pin's Photos
                 pin.photos = photos as! [Photo]
                 
-                annotation.title = "\(pin.photos.count) photos"
+                self.annotation.title = "\(pin.photos.count) photos"
                 
                 // Set Lat and Lon for Pin 
-                pin.latitude = annotation.coordinate.latitude
-                pin.longitude = annotation.coordinate.longitude
+                pin.latitude = self.annotation.coordinate.latitude
+                pin.longitude = self.annotation.coordinate.longitude
                 
                 //pin.annotation = annotation
                 self.pins.append(pin)
