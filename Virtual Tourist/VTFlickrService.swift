@@ -12,7 +12,6 @@ import MapKit
 class VTFlickrService {
     
     let session = NSURLSession.sharedSession()
-    var photos = [Photo]()
     
     func fetchPhotosForCoordinate(coordinate: CLLocationCoordinate2D, completionHandler: (success: Bool, photos: AnyObject!, error: ErrorType!) -> Void){
         
@@ -44,14 +43,14 @@ class VTFlickrService {
                 
                 if let photosDictionary = parsedResult["photos"] as? NSDictionary {
                     if let photosArray = photosDictionary["photo"] as? [[String : AnyObject]] {
+                        var photos = [[String : AnyObject]]()
                         for aPhoto in photosArray {
                             // ONLY add Photo if it has a url_m
                             if let _ = aPhoto["url_m"] as? String {
-                                let photo = Photo(photoDictionary: aPhoto)
-                                self.photos.append(photo)
+                                photos.append(aPhoto)
                             }
                         }
-                        completionHandler(success: true, photos: self.photos, error: nil)
+                        completionHandler(success: true, photos: photos, error: nil)
                     }
                 }
                 

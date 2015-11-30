@@ -116,7 +116,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
             photoCell.imageView.image = photo.image
         }else {
             photoCell.activityView.activityIndicatorView.startAnimating()
-            let task = VTImageService.fetchImageForURL(photo.urlString, completionHandler: { (imageData, downloadError) -> Void in
+            let task = VTImageService.fetchImageForURL(photo.urlString!, completionHandler: { (imageData, downloadError) -> Void in
                 if let errorFound = downloadError {
                     print("Error - \(errorFound.localizedDescription)")
                 }

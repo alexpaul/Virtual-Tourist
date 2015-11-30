@@ -9,6 +9,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     
@@ -33,6 +34,11 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     
     var pins = [Pin]()
     var annotations = [MKPointAnnotation]()
+    
+    // Shared Object Context 
+    var sharedContext: NSManagedObjectContext {
+        return CoreDataStackManager.sharedInstance().managedObjectContext
+    }
     
     override func loadView() {
         super.loadView()
@@ -171,18 +177,22 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         
         VTFlickrService().fetchPhotosForCoordinate(coordinate) { (success, photos, error) -> Void in
             if success {
-                let pin = Pin()
                 
-                // Set Pin's Photos
-                pin.photos = photos as! [Photo]
+                let resultsArray = photos as! [[String : AnyObject]]
+                var photosArray = [Photo]()
+                for result in resultsArray {
+                    let photo = Photo(photoDictionary: result, context: self.sharedContext)
+                    photosArray.append(photo)
+                }
+
+                let pin = Pin()
+                pin.photos = photosArray
+                pin.latitude = Double(self.annotation.coordinate.latitude)
+                pin.longitude = Double(self.annotation.coordinate.longitude)
+                
+                CoreDataStackManager.sharedInstance().saveContext() 
                 
                 self.annotation.title = "\(pin.photos.count) photos"
-                
-                // Set Lat and Lon for Pin 
-                pin.latitude = self.annotation.coordinate.latitude
-                pin.longitude = self.annotation.coordinate.longitude
-                
-                //pin.annotation = annotation
                 self.pins.append(pin)
             }else {
                 print("Error - \(error)")
