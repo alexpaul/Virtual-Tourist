@@ -57,7 +57,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         
         self.mapView.delegate = self
         
-        self.mapView.addAnnotations(self.annotations)
+        self.performFetch()
         
         // If exists, set Region from NSUserDefaults
         latitude = NSUserDefaults.standardUserDefaults().objectForKey(Constants.REGION_KEYS.LATITUDE) as? Double
@@ -74,6 +74,19 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         self.longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "addPinToMapView:")
         self.longPressGestureRecognizer.minimumPressDuration = MIN_PRESS_DURATION
         self.mapView.addGestureRecognizer(self.longPressGestureRecognizer)
+        
+        // Perform Fetch 
+        self.pins = self.performFetch()
+        if self.pins.count > 0 {
+            for pin in self.pins {
+                let anAnnotation = MKPointAnnotation()
+                anAnnotation.coordinate = CLLocationCoordinate2DMake(Double(pin.latitude), Double(pin.longitude))
+                anAnnotation.title = " "
+                self.annotations.append(anAnnotation)
+            }
+            self.mapView.addAnnotations(self.annotations)
+        }
+
     }
     
     // MARK: - Map View Delegate Methods 
@@ -184,18 +197,6 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
                 pin.latitude = Double(self.annotation.coordinate.latitude)
                 pin.longitude = Double(self.annotation.coordinate.longitude)
                 
-                let resultsArray = photos as! [[String : AnyObject]]
-                let photosArray = [Photo]()
-                for result in resultsArray {
-                    let photo = Photo(photoDictionary: result, context: self.sharedContext)
-                    photo.pin = pin  // Relationship between Photo and Pin is "pin"
-                    
-                    
-                    photosArray.append(photo)
-                }
-
-                //pin.photos = photosArray // Relationship between Pin and Photo is "photos"
-                
                 CoreDataStackManager.sharedInstance().saveContext() 
                 
                 self.annotation.title = "\(pin.photos.count) photos"
@@ -208,6 +209,19 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         // Update Map View 
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             self.mapView.addAnnotations(self.annotations)
+        }
+    }
+    
+    // MARK: - Helper Methods 
+    
+    func performFetch() -> [Pin] {
+        
+        let fetchRequest = NSFetchRequest(entityName: "Pin")
+        do {
+            return try self.sharedContext.executeFetchRequest(fetchRequest) as! [Pin]
+        }catch let error as NSError {
+            print("Error - perform fetch: \(error.localizedDescription)")
+            return [Pin]()
         }
     }
 
