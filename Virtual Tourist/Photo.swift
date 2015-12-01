@@ -16,15 +16,16 @@ import Foundation
 import MapKit
 import CoreData 
 
-class Photo: NSManagedObject {
+class Photo: NSManagedObject { // photo has a coordinate, annotation, image, (is a relationship? )
     
-    @NSManaged var latitude: Double
-    @NSManaged var longitude: Double
+    @NSManaged var latitude: NSNumber
+    @NSManaged var longitude: NSNumber
     @NSManaged var urlString: String? // url_m String
     @NSManaged var title: String?
     @NSManaged var id: String?
     @NSManaged var image: UIImage?
     @NSManaged var page: String?
+    @NSManaged var pin: Pin? // what type of relationship does a Photo have to a Pin???? (e.g a Movie has an actor (Person)
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)

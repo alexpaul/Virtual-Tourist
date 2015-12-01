@@ -120,7 +120,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         self.photoAlbumViewController.annotation = self.annotation
         
         for pin in self.pins {
-            let pinCoordinate = CLLocationCoordinate2DMake(pin.latitude, pin.longitude)
+            let pinCoordinate = CLLocationCoordinate2DMake(Double(pin.latitude), Double(pin.longitude))
             if (pinCoordinate.latitude == view.annotation!.coordinate.latitude) && (pinCoordinate.longitude == view.annotation!.coordinate.longitude) {
                 self.photoAlbumViewController.pin = pin
                 dispatch_async(dispatch_get_main_queue()) { () -> Void in
@@ -178,17 +178,23 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         VTFlickrService().fetchPhotosForCoordinate(coordinate) { (success, photos, error) -> Void in
             if success {
                 
+                let entity = NSEntityDescription.entityForName("Pin", inManagedObjectContext: self.sharedContext)!
+                let pin = Pin(entity: entity, insertIntoManagedObjectContext: self.sharedContext)
+                
+                pin.latitude = Double(self.annotation.coordinate.latitude)
+                pin.longitude = Double(self.annotation.coordinate.longitude)
+                
                 let resultsArray = photos as! [[String : AnyObject]]
-                var photosArray = [Photo]()
+                let photosArray = [Photo]()
                 for result in resultsArray {
                     let photo = Photo(photoDictionary: result, context: self.sharedContext)
+                    photo.pin = pin  // Relationship between Photo and Pin is "pin"
+                    
+                    
                     photosArray.append(photo)
                 }
 
-                let pin = Pin()
-                pin.photos = photosArray
-                pin.latitude = Double(self.annotation.coordinate.latitude)
-                pin.longitude = Double(self.annotation.coordinate.longitude)
+                //pin.photos = photosArray // Relationship between Pin and Photo is "photos"
                 
                 CoreDataStackManager.sharedInstance().saveContext() 
                 
