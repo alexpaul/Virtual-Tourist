@@ -128,9 +128,9 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         print("didSelectAnnotationView")
         
         self.photoAlbumViewController = PhotoAlbumViewController()
-        self.photoAlbumViewController.coordinate = view.annotation?.coordinate
-        self.photoAlbumViewController.region = self.mapView.region
-        self.photoAlbumViewController.annotation = self.annotation
+        self.photoAlbumViewController.region = self.mapView.region // Map Region
+        //self.photoAlbumViewController.annotation = self.annotation // Annotation Selected
+        //self.photoAlbumViewController.coordinate = view.annotation?.coordinate // Annotation's Coordinate
         
         for pin in self.pins {
             let pinCoordinate = CLLocationCoordinate2DMake(Double(pin.latitude), Double(pin.longitude))
@@ -140,6 +140,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
                     self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "Ok", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
                     self.navigationController?.pushViewController(self.photoAlbumViewController, animated: true)
                 }
+                break
             }
         }
     }
@@ -191,12 +192,16 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         VTFlickrService().fetchPhotosForCoordinate(coordinate) { (success, photos, error) -> Void in
             if success {
                 
+                // Create a Pin Entity and Save the Context
                 let entity = NSEntityDescription.entityForName("Pin", inManagedObjectContext: self.sharedContext)!
                 let pin = Pin(entity: entity, insertIntoManagedObjectContext: self.sharedContext)
-                
                 pin.latitude = Double(self.annotation.coordinate.latitude)
                 pin.longitude = Double(self.annotation.coordinate.longitude)
-                
+                let photosArray = photos as! [[String : AnyObject]]
+                for result in photosArray {
+                    let photo = Photo(photoDictionary: result, context: self.sharedContext)
+                    photo.pin = pin
+                }
                 CoreDataStackManager.sharedInstance().saveContext() 
                 
                 self.annotation.title = "\(pin.photos.count) photos"

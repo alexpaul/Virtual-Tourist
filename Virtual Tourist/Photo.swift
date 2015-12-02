@@ -20,12 +20,20 @@ class Photo: NSManagedObject { // photo has a coordinate, annotation, image, (is
     
     @NSManaged var latitude: NSNumber
     @NSManaged var longitude: NSNumber
-    @NSManaged var urlString: String? // url_m String
+    @NSManaged var imagePath: String? // url_m String
     @NSManaged var title: String?
     @NSManaged var id: String?
-    @NSManaged var image: UIImage?
     @NSManaged var page: String?
     @NSManaged var pin: Pin? // what type of relationship does a Photo have to a Pin???? (e.g a Movie has an actor (Person)
+    
+    var image: UIImage? {
+        set{
+            VTImageService.storeImage(image, withIdentifier: imagePath!)
+        }
+        get {
+            return VTImageService.imageWithIdentifier(imagePath)
+        }
+    }
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -37,7 +45,7 @@ class Photo: NSManagedObject { // photo has a coordinate, annotation, image, (is
         
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
-        urlString = (photoDictionary["url_m"] as? String)
+        imagePath = (photoDictionary["url_m"] as? String)
         title = photoDictionary["title"] as? String
         page = photoDictionary["page"] as? String
         id = photoDictionary["id"] as? String

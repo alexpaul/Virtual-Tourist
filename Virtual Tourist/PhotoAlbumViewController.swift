@@ -17,11 +17,18 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     var noImagesLabel: UILabel!
     var bottomBarContainerView: UIView!
     var layout: UICollectionViewFlowLayout!
-    var coordinate: CLLocationCoordinate2D?
     var pin: Pin!
     var mapView: MKMapView!
     var region: MKCoordinateRegion!
-    var annotation: MKPointAnnotation!
+    //var annotation: MKPointAnnotation!
+    //var coordinate: CLLocationCoordinate2D?
+    
+    var pinAnnotation: MKPointAnnotation {
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = CLLocationCoordinate2DMake(Double(self.pin.latitude), Double(self.pin.longitude))
+        annotation.title = " "
+        return annotation
+    }
     
     // Contorllers 
     var imageDetailViewController: ImageDetailViewController!
@@ -83,9 +90,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         
         if self.pin.photos.count == 0 {self.noImagesLabel.hidden = false}
         
+        print("there are \(self.pin.photos.count) photos")
+        
         // Setup the Map View
         self.mapView.region = self.region
-        self.mapView.addAnnotation(self.annotation)
+        self.mapView.addAnnotation(self.pinAnnotation)
         self.mapView.userInteractionEnabled = false
         
         self.collectionView.delegate = self
@@ -101,7 +110,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
         let photoCell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCell", forIndexPath: indexPath) as! PhotoCell
-        let photo = self.pin.photos[indexPath.row]
+        let photo = self.pin.photos[indexPath.row] as Photo
         
         self.configureCell(photoCell, photo: photo, indexPath: indexPath)
         
@@ -116,14 +125,15 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
             photoCell.imageView.image = photo.image
         }else {
             photoCell.activityView.activityIndicatorView.startAnimating()
-            let task = VTImageService.fetchImageForURL(photo.urlString!, completionHandler: { (imageData, downloadError) -> Void in
+            let task = VTImageService.fetchImageForURL(photo.imagePath!, completionHandler: { (imageData, downloadError) -> Void in
                 if let errorFound = downloadError {
                     print("Error - \(errorFound.localizedDescription)")
                 }
                 if let data = imageData {
+                    let image = UIImage(data: data)
+                    //photo.image = image
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        photo.image = UIImage(data: data)
-                        photoCell.imageView.image = photo.image
+                        photoCell.imageView.image = image
                         photoCell.activityView.activityIndicatorView.stopAnimating()
                     })
                 }
@@ -154,7 +164,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         VTSingleton.sharedInstance().currentPageNumber++
         
         // Do a New Page Search
-        VTFlickrService().fetchPhotosForCoordinate(self.coordinate!) { (success, photos, error) -> Void in
+        VTFlickrService().fetchPhotosForCoordinate(self.pinAnnotation.coordinate) { (success, photos, error) -> Void in
             if error != nil {
                 print("Error - \(error)")
             }
