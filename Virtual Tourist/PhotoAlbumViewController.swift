@@ -11,6 +11,9 @@ import UIKit
 import MapKit
 import CoreData
 
+let EDIT_OFF = "Edit Off"
+let EDIT_ON = "Edit On"
+
 class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     var collectionView: UICollectionView!
@@ -22,6 +25,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     var mapView: MKMapView!
     var region: MKCoordinateRegion!
     var sharedContext: NSManagedObjectContext!
+    lazy var editButton = UIBarButtonItem()
     
     var pinAnnotation: MKPointAnnotation {
         let annotation = MKPointAnnotation()
@@ -88,6 +92,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.editButton = UIBarButtonItem(title: EDIT_ON, style: UIBarButtonItemStyle.Plain, target: self, action: "toggleEditMode:")
+        
+        self.navigationItem.rightBarButtonItem = self.editButton
+        
         if self.pin.photos.count == 0 {self.noImagesLabel.hidden = false}
         
         // Setup the Map View
@@ -147,22 +155,25 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         
         let photo = self.pin.photos[indexPath.row]
         
-        // 1. Remove Image from the Documents Directory
-        VTSingleton.Caches.imageCache.deleteImage(withIdentifier: photo.id)
-        
-        // 2. Delete Photo from Core Data
-        self.sharedContext.deleteObject(photo)
-        CoreDataStackManager.sharedInstance().saveContext()
-        
-        // 3. Remove the Collection View Cell
-        self.collectionView.deleteItemsAtIndexPaths([indexPath])
-        self.collectionView.reloadData()
-        
-    
-        // Pushes an Detail Image
-//        self.imageDetailViewController = ImageDetailViewController()
-//        self.imageDetailViewController.image = photo.image
-//        self.navigationController?.pushViewController(self.imageDetailViewController, animated: false)
+        if self.editButton.title == EDIT_ON {
+            
+            // 1. Remove Image from the Documents Directory
+            VTSingleton.Caches.imageCache.deleteImage(withIdentifier: photo.id)
+            
+            // 2. Delete Photo from Core Data
+            self.sharedContext.deleteObject(photo)
+            CoreDataStackManager.sharedInstance().saveContext()
+            
+            // 3. Remove the Collection View Cell
+            self.collectionView.deleteItemsAtIndexPaths([indexPath])
+            self.collectionView.reloadData()
+        }else {
+            
+            // Pushes an Detail Image
+            self.imageDetailViewController = ImageDetailViewController()
+            self.imageDetailViewController.image = photo.image
+            self.navigationController?.pushViewController(self.imageDetailViewController, animated: false)
+        }
     }
     
     // MARK: - Actions
@@ -205,6 +216,16 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
                     })
                 }
             }
+        }
+    }
+    
+    func toggleEditMode(barItem: UIBarButtonItem) {
+        print("\(barItem.title)")
+        
+        if barItem.title! == EDIT_ON {
+            barItem.title = EDIT_OFF
+        }else {
+            barItem.title = EDIT_ON
         }
     }
     
