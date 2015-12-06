@@ -13,7 +13,7 @@ class VTFlickrService {
     
     let session = NSURLSession.sharedSession()
     
-    func fetchPhotosForCoordinate(coordinate: CLLocationCoordinate2D, completionHandler: (success: Bool, photos: AnyObject!, error: ErrorType!) -> Void){
+    func fetchPhotosForCoordinate(coordinate: CLLocationCoordinate2D, completionHandler: (success: Bool, photos: AnyObject!, error: NSError!) -> Void){
         
         let method = "flickr.photos.search"
         let methodArguments = [ "method" : method,
@@ -34,7 +34,9 @@ class VTFlickrService {
         let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
             
             if error != nil {
-                print("Error: \(error)")
+                //print("Error - fetchPhotosForCoordinate: \(error?.localizedDescription)")
+                completionHandler(success: false, photos: nil, error: error)
+                return
             }
            
             let parsedResult: AnyObject!
@@ -57,7 +59,7 @@ class VTFlickrService {
             }catch {
                 parsedResult = nil
                 print("Error - no data \(parsedResult) \(error)")
-                completionHandler(success: false, photos: nil, error: error)
+                //completionHandler(success: false, photos: nil, error: error)
             }
             
         }

@@ -146,11 +146,23 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         collectionView.deselectItemAtIndexPath(indexPath, animated: true)
         
         let photo = self.pin.photos[indexPath.row]
-    
-        self.imageDetailViewController = ImageDetailViewController()
-        self.imageDetailViewController.image = photo.image
         
-        self.navigationController?.pushViewController(self.imageDetailViewController, animated: false)
+        // 1. Remove Image from the Documents Directory
+        VTSingleton.Caches.imageCache.deleteImage(withIdentifier: photo.id)
+        
+        // 2. Delete Photo from Core Data
+        self.sharedContext.deleteObject(photo)
+        CoreDataStackManager.sharedInstance().saveContext()
+        
+        // 3. Remove the Collection View Cell
+        self.collectionView.deleteItemsAtIndexPaths([indexPath])
+        self.collectionView.reloadData()
+        
+    
+        // Pushes an Detail Image
+//        self.imageDetailViewController = ImageDetailViewController()
+//        self.imageDetailViewController.image = photo.image
+//        self.navigationController?.pushViewController(self.imageDetailViewController, animated: false)
     }
     
     // MARK: - Actions
@@ -165,6 +177,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         VTFlickrService().fetchPhotosForCoordinate(self.pinAnnotation.coordinate) { (success, photos, error) -> Void in
             if error != nil {
                 print("Error - \(error)")
+                self.downloadAlertMessage(error)
+                return
             }
             if success {
                 
@@ -193,6 +207,16 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
             }
         }
     }
+    
+    // MARK: - Alerts
+    
+    func downloadAlertMessage(error: NSError?) {
+        let alertController = UIAlertController(title: "Download Error", message: "\(error!.localizedDescription)", preferredStyle: UIAlertControllerStyle.Alert)
+        let alertAction = UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil)
+        alertController.addAction(alertAction)
+        self.presentViewController(alertController, animated: true, completion: nil)
+    }
+
     
     // MARK: - Collection View Flow Layout Delegate Methods
     

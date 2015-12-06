@@ -59,6 +59,21 @@ class ImageCache {
         }
     }
     
+    // Delete an Image 
+    func deleteImage(withIdentifier identifier: String?) {
+        
+        let path = self.pathForFileName(identifier!)
+        
+        let fileManager = NSFileManager.defaultManager()
+        do{
+            try fileManager.removeItemAtPath(path)
+            print("successfully deleted image at path: \(path)")
+        }catch let error as NSError {
+            print("Error - Deleting Image: \(error)")
+        }
+        
+    }
+    
     func pathForFileName(identifier: String) -> String {
         let documentsDirectoryURL: NSURL = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
         let fullURL = documentsDirectoryURL.URLByAppendingPathComponent(identifier)

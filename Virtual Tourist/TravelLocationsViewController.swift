@@ -189,6 +189,13 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         self.annotations.append(annotation)
         
         VTFlickrService().fetchPhotosForCoordinate(coordinate) { (success, photos, error) -> Void in
+            
+            if error != nil {
+                print("Error - \(error)")
+                self.downloadAlertMessage(error)
+                return
+            }
+            
             if success {
                 
                 // Create a Pin Entity and Save the Context
@@ -227,6 +234,15 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
             print("Error - perform fetch: \(error.localizedDescription)")
             return [Pin]()
         }
+    }
+    
+    // MARK: - Alerts
+    
+    func downloadAlertMessage(error: NSError?) {
+        let alertController = UIAlertController(title: "Download Error", message: "\(error!.localizedDescription)", preferredStyle: UIAlertControllerStyle.Alert)
+        let alertAction = UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil)
+        alertController.addAction(alertAction)
+        self.presentViewController(alertController, animated: true, completion: nil)
     }
 
 }

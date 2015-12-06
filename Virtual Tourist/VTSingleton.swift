@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class VTSingleton {
     
@@ -34,7 +35,6 @@ class VTSingleton {
     struct Caches {
         static let imageCache = ImageCache()
     }
-    
     
     // MARK: - Background Thread
     /*
