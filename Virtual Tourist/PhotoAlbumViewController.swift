@@ -9,6 +9,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
@@ -20,8 +21,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     var pin: Pin!
     var mapView: MKMapView!
     var region: MKCoordinateRegion!
-    //var annotation: MKPointAnnotation!
-    //var coordinate: CLLocationCoordinate2D?
+    var sharedContext: NSManagedObjectContext!
     
     var pinAnnotation: MKPointAnnotation {
         let annotation = MKPointAnnotation()
@@ -90,8 +90,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         
         if self.pin.photos.count == 0 {self.noImagesLabel.hidden = false}
         
-        print("there are \(self.pin.photos.count) photos")
-        
         // Setup the Map View
         self.mapView.region = self.region
         self.mapView.addAnnotation(self.pinAnnotation)
@@ -110,7 +108,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
         let photoCell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCell", forIndexPath: indexPath) as! PhotoCell
-        let photo = self.pin.photos[indexPath.row] as Photo
+        let photo = self.pin.photos[indexPath.row]
         
         self.configureCell(photoCell, photo: photo, indexPath: indexPath)
         
@@ -130,9 +128,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
                     print("Error - \(errorFound.localizedDescription)")
                 }
                 if let data = imageData {
-                    let image = UIImage(data: data)
-                    //photo.image = image
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        let image = UIImage(data: data)
+                        photo.image = image
                         photoCell.imageView.image = image
                         photoCell.activityView.activityIndicatorView.stopAnimating()
                     })
@@ -171,8 +169,23 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
             if success {
                 
                 if let newPhotos = photos {
-                    self.pin = Pin()
-                    self.pin.photos = newPhotos as! [Photo]
+                    
+                    // Delete the Existing Photos from the Pin
+                    for photo in self.pin.photos {
+                        self.sharedContext.deleteObject(photo)
+                    }
+                    
+                    // Add the New Photos to the Pin 
+                    let photosArray = newPhotos as! [[String : AnyObject]]
+                    for result in photosArray {
+                        let photo = Photo(photoDictionary: result, context: self.sharedContext)
+                        photo.pin = self.pin
+                    }
+                    
+                    // Save the Context to Core Data
+                    CoreDataStackManager.sharedInstance().saveContext()
+            
+                    // Reload the Collection View
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
                         self.collectionView.reloadData()
                     })

@@ -10,6 +10,7 @@
 		57E4E80D1BEF7E6E001B5670 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57E4E80C1BEF7E6E001B5670 /* AppDelegate.swift */; };
 		57E4E8121BEF7E6E001B5670 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 57E4E8101BEF7E6E001B5670 /* Main.storyboard */; };
 		57E4E8141BEF7E6E001B5670 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 57E4E8131BEF7E6E001B5670 /* Assets.xcassets */; };
+		C4647C011C13B00000BAE597 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4647C001C13B00000BAE597 /* ImageCache.swift */; settings = {ASSET_TAGS = (); }; };
 		C467D8FB1BF7528A0034B288 /* TravelLocationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C467D8FA1BF7528A0034B288 /* TravelLocationsViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		C467D8FE1BF758A00034B288 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C467D8FD1BF758A00034B288 /* PhotoAlbumViewController.swift */; settings = {ASSET_TAGS = (); }; };
 		C467D9001BF76B0D0034B288 /* CoreDataStackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C467D8FF1BF76B0D0034B288 /* CoreDataStackManager.swift */; settings = {ASSET_TAGS = (); }; };
@@ -32,6 +33,7 @@
 		57E4E8111BEF7E6E001B5670 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		57E4E8131BEF7E6E001B5670 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		57E4E8181BEF7E6E001B5670 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C4647C001C13B00000BAE597 /* ImageCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		C467D8FA1BF7528A0034B288 /* TravelLocationsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TravelLocationsViewController.swift; sourceTree = "<group>"; };
 		C467D8FD1BF758A00034B288 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
 		C467D8FF1BF76B0D0034B288 /* CoreDataStackManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStackManager.swift; sourceTree = "<group>"; };
@@ -79,16 +81,25 @@
 			isa = PBXGroup;
 			children = (
 				57E4E80C1BEF7E6E001B5670 /* AppDelegate.swift */,
-				C467D9321BFCAE7A0034B288 /* VTSingleton.swift */,
-				C467D9081BF8A8400034B288 /* Constants.swift */,
-				C467D9301BFABA0A0034B288 /* VTFlickrService.swift */,
-				C467D9341BFCAEEF0034B288 /* VTImageService.swift */,
+				C4647C021C145C1000BAE597 /* Service */,
 				C467D9011BF76B200034B288 /* Model */,
 				C467D9051BF76E030034B288 /* View */,
 				C467D9021BF76B2D0034B288 /* View Controllers */,
 				C467D8FC1BF758780034B288 /* Supporting Files */,
 			);
 			path = "Virtual Tourist";
+			sourceTree = "<group>";
+		};
+		C4647C021C145C1000BAE597 /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				C467D9321BFCAE7A0034B288 /* VTSingleton.swift */,
+				C467D9081BF8A8400034B288 /* Constants.swift */,
+				C467D9301BFABA0A0034B288 /* VTFlickrService.swift */,
+				C467D9341BFCAEEF0034B288 /* VTImageService.swift */,
+				C4647C001C13B00000BAE597 /* ImageCache.swift */,
+			);
+			name = Service;
 			sourceTree = "<group>";
 		};
 		C467D8FC1BF758780034B288 /* Supporting Files */ = {
@@ -203,6 +214,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C4647C011C13B00000BAE597 /* ImageCache.swift in Sources */,
 				57E4E80D1BEF7E6E001B5670 /* AppDelegate.swift in Sources */,
 				C467D9041BF76DFD0034B288 /* PhotoCell.swift in Sources */,
 				C467D9331BFCAE7A0034B288 /* VTSingleton.swift in Sources */,

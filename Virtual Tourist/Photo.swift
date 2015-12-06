@@ -27,11 +27,14 @@ class Photo: NSManagedObject { // photo has a coordinate, annotation, image, (is
     @NSManaged var pin: Pin? // what type of relationship does a Photo have to a Pin???? (e.g a Movie has an actor (Person)
     
     var image: UIImage? {
+        
         set{
-            VTImageService.storeImage(image, withIdentifier: imagePath!)
+            print("\nnew image being set: \(newValue)\n with identifier: \(id) \n\n")
+            VTSingleton.Caches.imageCache.storeImage(newValue, withIdentifier: id)
         }
         get {
-            return VTImageService.imageWithIdentifier(imagePath)
+            print("\nreturning image: \(VTSingleton.Caches.imageCache.imageWithIdentifier(id)) \nwith identifier: \(id)")
+            return VTSingleton.Caches.imageCache.imageWithIdentifier(id)
         }
     }
     

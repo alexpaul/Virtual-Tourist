@@ -29,6 +29,12 @@ class VTSingleton {
         return Singleton.sharedIntance
     }
     
+    // MARK: - Shared Image Cache
+    
+    struct Caches {
+        static let imageCache = ImageCache()
+    }
+    
     
     // MARK: - Background Thread
     /*
@@ -63,10 +69,4 @@ class VTSingleton {
         }
     }
     
-    func pathForFileName(fileName: String) -> String {
-        let documentsDirectoryURL: NSURL = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
-        let fullURL = documentsDirectoryURL.URLByAppendingPathComponent(fileName)
-        return fullURL.path!
-    }
-
 }

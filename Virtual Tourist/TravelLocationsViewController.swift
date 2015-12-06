@@ -57,7 +57,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         
         self.mapView.delegate = self
         
-        self.performFetch()
+        //self.performFetch()
         
         // If exists, set Region from NSUserDefaults
         latitude = NSUserDefaults.standardUserDefaults().objectForKey(Constants.REGION_KEYS.LATITUDE) as? Double
@@ -129,8 +129,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         
         self.photoAlbumViewController = PhotoAlbumViewController()
         self.photoAlbumViewController.region = self.mapView.region // Map Region
-        //self.photoAlbumViewController.annotation = self.annotation // Annotation Selected
-        //self.photoAlbumViewController.coordinate = view.annotation?.coordinate // Annotation's Coordinate
+        self.photoAlbumViewController.sharedContext = self.sharedContext
         
         for pin in self.pins {
             let pinCoordinate = CLLocationCoordinate2DMake(Double(pin.latitude), Double(pin.longitude))
