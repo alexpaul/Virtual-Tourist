@@ -210,27 +210,27 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
                 
                 if let newPhotos = photos {
                     
-                    // Delete the Existing Photos from the Pin
-                    for photo in self.pin.photos {
-                        // Delete Photo from Core Data
-                        self.sharedContext.deleteObject(photo)
-                        
-                        // Remove Image from the Documents Directory
-                        VTSingleton.Caches.imageCache.deleteImage(withIdentifier: photo.id)
-                    }
-                    
-                    // Add the New Photos to the Pin 
-                    let photosArray = newPhotos as! [[String : AnyObject]]
-                    for result in photosArray {
-                        let photo = Photo(photoDictionary: result, context: self.sharedContext)
-                        photo.pin = self.pin
-                    }
-                    
-                    // Save the Context to Core Data
-                    CoreDataStackManager.sharedInstance().saveContext()
-            
-                    // Reload the Collection View
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        
+                        // Delete the Existing Photos from the Pin
+                        for photo in self.pin.photos {
+                            // Delete Photo from Core Data
+                            self.sharedContext.deleteObject(photo)
+                            
+                            // Remove Image from the Documents Directory
+                            VTSingleton.Caches.imageCache.deleteImage(withIdentifier: photo.id)
+                        }
+                        
+                        // Add the New Photos to the Pin
+                        let photosArray = newPhotos as! [[String : AnyObject]]
+                        for result in photosArray {
+                            let photo = Photo(photoDictionary: result, context: self.sharedContext)
+                            photo.pin = self.pin
+                        }
+                        
+                        // Save the Context to Core Data
+                        CoreDataStackManager.sharedInstance().saveContext()
+                        
                         self.collectionView.reloadData()
                         
                         VTSingleton.sharedInstance().backgroundThread(3.0, completion: { () -> Void in

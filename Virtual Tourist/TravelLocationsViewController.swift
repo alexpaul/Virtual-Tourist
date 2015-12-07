@@ -234,20 +234,25 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
             
             if success {
                 
-                // Create a Pin Entity and Save the Context
-                let entity = NSEntityDescription.entityForName("Pin", inManagedObjectContext: self.sharedContext)!
-                let pin = Pin(entity: entity, insertIntoManagedObjectContext: self.sharedContext)
-                pin.latitude = Double(self.annotation.coordinate.latitude)
-                pin.longitude = Double(self.annotation.coordinate.longitude)
-                let photosArray = photos as! [[String : AnyObject]]
-                for result in photosArray {
-                    let photo = Photo(photoDictionary: result, context: self.sharedContext)
-                    photo.pin = pin
-                }
-                CoreDataStackManager.sharedInstance().saveContext() 
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    
+                    // Create a Pin Entity and Add Photo Entities to it - then Save the Context
+                    let entity = NSEntityDescription.entityForName("Pin", inManagedObjectContext: self.sharedContext)!
+                    let pin = Pin(entity: entity, insertIntoManagedObjectContext: self.sharedContext)
+                    pin.latitude = Double(self.annotation.coordinate.latitude)
+                    pin.longitude = Double(self.annotation.coordinate.longitude)
+                    let photosArray = photos as! [[String : AnyObject]]
+                    
+                    for result in photosArray {
+                        let photo = Photo(photoDictionary: result, context: self.sharedContext)
+                        photo.pin = pin
+                    }
+                    CoreDataStackManager.sharedInstance().saveContext()
+                    
+                    self.annotation.title = " "//"\(pin.photos.count) photos"
+                    self.pins.append(pin)
+                })
                 
-                self.annotation.title = " "//"\(pin.photos.count) photos"
-                self.pins.append(pin)
             }else {
                 print("Error - \(error)")
             }
