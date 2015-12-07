@@ -11,6 +11,9 @@ import UIKit
 
 class Constants {
     
+    static let EDIT_OFF = "Edit"
+    static let EDIT_ON = "Done"
+    
     static let navigationBarHeight: CGFloat = 44
     static let statusBarHeight: CGFloat = 20
     static let tabBarHeight: CGFloat = 49

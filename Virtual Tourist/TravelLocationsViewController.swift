@@ -31,6 +31,9 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     
     var longPressGestureRecognizer: UILongPressGestureRecognizer!
     
+    lazy var editButton = UIBarButtonItem()
+    var editPinsBarButton: UIButton!
+    
     
     var pins = [Pin]()
     var annotations = [MKPointAnnotation]()
@@ -48,6 +51,16 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         // Map View
         self.mapView = MKMapView(frame: (UIScreen.mainScreen().bounds))
         self.view.addSubview(self.mapView)
+        
+        // Edit Pins Button
+        let newCollectionButtonSize = CGSize(width: self.view.frame.width, height: 44)
+        let newCollectionButtonPoint = CGPoint(x: 0, y: self.view.frame.height - newCollectionButtonSize.height)
+        self.editPinsBarButton = UIButton(frame: CGRectMake(newCollectionButtonPoint.x, newCollectionButtonPoint.y, newCollectionButtonSize.width, newCollectionButtonSize.height))
+        self.editPinsBarButton.setTitle("Tap Pin To Remove", forState: UIControlState.Normal)
+        self.editPinsBarButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+        self.editPinsBarButton.backgroundColor = UIColor.redColor()
+        self.editPinsBarButton.hidden = true
+        self.view.addSubview(self.editPinsBarButton)
     }
 
     override func viewDidLoad() {
@@ -55,9 +68,12 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         
         self.title = "Virtual Tourist"
         
-        self.mapView.delegate = self
+        self.editButton = UIBarButtonItem(title: Constants.EDIT_OFF, style: UIBarButtonItemStyle.Plain, target: self, action: "toggleEditMode:")
+        self.editButton.tintColor = UIColor.blackColor()
         
-        //self.performFetch()
+        self.navigationItem.rightBarButtonItem = self.editButton
+        
+        self.mapView.delegate = self
         
         // If exists, set Region from NSUserDefaults
         latitude = NSUserDefaults.standardUserDefaults().objectForKey(Constants.REGION_KEYS.LATITUDE) as? Double
@@ -71,21 +87,13 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
             self.mapView.region = MKCoordinateRegion(center: center, span: span)
         }
         
-        self.longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "addPinToMapView:")
+        self.longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "addPin:")
         self.longPressGestureRecognizer.minimumPressDuration = MIN_PRESS_DURATION
         self.mapView.addGestureRecognizer(self.longPressGestureRecognizer)
         
         // Perform Fetch 
         self.pins = self.performFetch()
-        if self.pins.count > 0 {
-            for pin in self.pins {
-                let anAnnotation = MKPointAnnotation()
-                anAnnotation.coordinate = CLLocationCoordinate2DMake(Double(pin.latitude), Double(pin.longitude))
-                anAnnotation.title = " "
-                self.annotations.append(anAnnotation)
-            }
-            self.mapView.addAnnotations(self.annotations)
-        }
+        self.addAnnotationsToMapView()
 
     }
     
@@ -99,7 +107,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         
         if pinView == nil {
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseID)
-            pinView?.canShowCallout = true
+            pinView?.canShowCallout = false
             pinView?.animatesDrop = true
             pinView?.rightCalloutAccessoryView = UIButton(type: UIButtonType.DetailDisclosure)
             if #available(iOS 9.0, *) {
@@ -124,24 +132,50 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     }
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
-        
-        print("didSelectAnnotationView")
-        
-        self.photoAlbumViewController = PhotoAlbumViewController()
-        self.photoAlbumViewController.region = self.mapView.region // Map Region
-        self.photoAlbumViewController.sharedContext = self.sharedContext
-        
-        for pin in self.pins {
-            let pinCoordinate = CLLocationCoordinate2DMake(Double(pin.latitude), Double(pin.longitude))
-            if (pinCoordinate.latitude == view.annotation!.coordinate.latitude) && (pinCoordinate.longitude == view.annotation!.coordinate.longitude) {
-                self.photoAlbumViewController.pin = pin
-                dispatch_async(dispatch_get_main_queue()) { () -> Void in
-                    self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "Ok", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
-                    self.navigationController?.pushViewController(self.photoAlbumViewController, animated: true)
+
+        if self.editButton.title! == Constants.EDIT_OFF {
+            
+            self.photoAlbumViewController = PhotoAlbumViewController()
+            self.photoAlbumViewController.region = self.mapView.region // Map Region
+            self.photoAlbumViewController.sharedContext = self.sharedContext
+            
+            for pin in self.pins {
+                let pinCoordinate = CLLocationCoordinate2DMake(Double(pin.latitude), Double(pin.longitude))
+                if (pinCoordinate.latitude == view.annotation!.coordinate.latitude) && (pinCoordinate.longitude == view.annotation!.coordinate.longitude) {
+                    self.photoAlbumViewController.pin = pin
+                    dispatch_async(dispatch_get_main_queue()) { () -> Void in
+                        self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "Ok", style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+                        self.navigationController?.pushViewController(self.photoAlbumViewController, animated: true)
+                    }
+                    break
                 }
-                break
             }
+        }else {
+            
+            // 1. Delete Pin from Core Data 
+            for pin in self.pins {
+                let pinCoordinate = CLLocationCoordinate2DMake(Double(pin.latitude), Double(pin.longitude))
+                if (pinCoordinate.latitude == view.annotation!.coordinate.latitude) && (pinCoordinate.longitude == view.annotation!.coordinate.longitude) {
+                    self.sharedContext.deleteObject(pin)
+                    CoreDataStackManager.sharedInstance().saveContext()
+                    break
+                }
+            }
+            
+            print("PIN DELETED")
+            
+            // 2. Update Pins
+            //self.pins = [Pin]()
+            //self.pins = performFetch()
+            self.addAnnotationsToMapView()
+        
+            
+            // 3. Remove Images from the Documents Directory
+            
+            // 3. Update Map View
+            
         }
+
     }
     
     func mapViewWillStartLoadingMap(mapView: MKMapView) {
@@ -172,16 +206,18 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     
     // MARK: - Actions 
     
-    func addPinToMapView(gestureReconizer: UIGestureRecognizer) {
+    func addPin(gestureReconizer: UIGestureRecognizer) {
+        
+        if self.editButton.title == Constants.EDIT_ON {
+            // Not able to Add Pins in Edit Mode
+            return
+        }
         
         if gestureReconizer.state != UIGestureRecognizerState.Began {return}
         
         let touchPoint = gestureReconizer.locationInView(self.mapView)
         let touchPointCoordinate = self.mapView.convertPoint(touchPoint, toCoordinateFromView: self.mapView)
-        
         let coordinate = touchPointCoordinate
-        
-        print("coordinate is \(coordinate)")
         
         self.annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
@@ -210,7 +246,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
                 }
                 CoreDataStackManager.sharedInstance().saveContext() 
                 
-                self.annotation.title = "\(pin.photos.count) photos"
+                self.annotation.title = " "//"\(pin.photos.count) photos"
                 self.pins.append(pin)
             }else {
                 print("Error - \(error)")
@@ -220,6 +256,31 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         // Update Map View 
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             self.mapView.addAnnotations(self.annotations)
+        }
+    }
+    
+    func toggleEditMode(barItem: UIBarButtonItem) {
+        
+        // Edit Off
+        if barItem.title! == Constants.EDIT_ON {
+            barItem.title = Constants.EDIT_OFF
+            barItem.tintColor = UIColor.blackColor()
+            self.editPinsBarButton.hidden = true
+         
+            // Return Map View Frame to Original Position
+            self.mapView.frame.origin.y = 0
+        }
+        
+        // Edit On
+        else {
+            barItem.title = Constants.EDIT_ON
+            barItem.tintColor = UIColor.redColor()
+            self.editPinsBarButton.hidden = false
+            
+            // Move Map View Up for Edit Pins Button
+            var newFrame = self.mapView.frame
+            newFrame.origin.y -= self.editPinsBarButton.frame.height
+            self.mapView.frame = newFrame
         }
     }
     
@@ -233,6 +294,23 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         }catch let error as NSError {
             print("Error - perform fetch: \(error.localizedDescription)")
             return [Pin]()
+        }
+    }
+    
+    func addAnnotationsToMapView() {
+        
+        if self.pins.count > 0 {
+            self.mapView.removeAnnotations(self.annotations)
+            self.annotations = [MKPointAnnotation]()
+            for pin in self.pins {
+                let anAnnotation = MKPointAnnotation()
+                anAnnotation.coordinate = CLLocationCoordinate2DMake(Double(pin.latitude), Double(pin.longitude))
+                anAnnotation.title = ""
+                self.annotations.append(anAnnotation)
+            }
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                self.mapView.addAnnotations(self.annotations)
+            })
         }
     }
     

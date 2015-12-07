@@ -24,7 +24,10 @@ class ImageCache {
         let path = self.pathForFileName(identifier!)
         print("\nimageWithIdentifier - retrieving from path: \(path)\n")
         
-        // TODO: First try the memory cache
+        // First try the memory cache
+        if let image = inMemoryCache.objectForKey(path) {
+            return image as? UIImage
+        }
         
         // Next try the Documents Directory
         if let data = NSData(contentsOfFile: path) {
@@ -41,13 +44,26 @@ class ImageCache {
     // Storing an Image
     func storeImage(image: UIImage?, withIdentifier identifier: String?) {
         
+        if identifier == nil || identifier == "" {
+            return
+        }
+        
         let path = self.pathForFileName(identifier!)
         
-        // TODO: if the image is nil remove from cache
-        // TODO: otherwise keep it in memory
-        //        if image == nil {
-        //            return
-        //        }
+         // If the image is nil remove from cache
+        if image == nil {
+            
+            inMemoryCache.removeObjectForKey(path)
+            do {
+                try NSFileManager.defaultManager().removeItemAtPath(path)
+            }catch {
+                print("Error removing image from cache")
+            }
+            return
+        }
+        
+        // Otherwise keep the image in memory 
+        inMemoryCache.setObject(image!, forKey: path)
         
         // Save in Documents Directory
         let data = UIImagePNGRepresentation(image!)!

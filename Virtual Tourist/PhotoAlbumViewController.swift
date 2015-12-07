@@ -11,9 +11,6 @@ import UIKit
 import MapKit
 import CoreData
 
-let EDIT_OFF = "Edit Off"
-let EDIT_ON = "Edit On"
-
 class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     var collectionView: UICollectionView!
@@ -26,6 +23,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     var region: MKCoordinateRegion!
     var sharedContext: NSManagedObjectContext!
     lazy var editButton = UIBarButtonItem()
+    var editCellButton: UIButton!
     
     var pinAnnotation: MKPointAnnotation {
         let annotation = MKPointAnnotation()
@@ -87,12 +85,23 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         self.newCollectionButton.setTitleColor(Constants.COLOR_KEYS.BUTTON_TITLE_COLOR, forState: UIControlState.Normal)
         self.newCollectionButton.addTarget(self, action: "newCollectionButtonPressed", forControlEvents: UIControlEvents.TouchUpInside)
         self.view.addSubview(self.newCollectionButton)
+        
+        // Edit Cells Button
+        let editCellButtonSize = CGSize(width: self.view.frame.width, height: 44)
+        let editCellButtonPoint = CGPoint(x: 0, y: self.view.frame.height - editCellButtonSize.height)
+        self.editCellButton = UIButton(frame: CGRectMake(editCellButtonPoint.x, editCellButtonPoint.y, editCellButtonSize.width, editCellButtonSize.height))
+        self.editCellButton.setTitle("Tap Photo To Remove", forState: UIControlState.Normal)
+        self.editCellButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+        self.editCellButton.backgroundColor = UIColor.redColor()
+        self.editCellButton.hidden = true
+        self.view.addSubview(self.editCellButton)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.editButton = UIBarButtonItem(title: EDIT_ON, style: UIBarButtonItemStyle.Plain, target: self, action: "toggleEditMode:")
+        self.editButton = UIBarButtonItem(title: Constants.EDIT_OFF, style: UIBarButtonItemStyle.Plain, target: self, action: "toggleEditMode:")
+        self.editButton.tintColor = UIColor.blackColor()
         
         self.navigationItem.rightBarButtonItem = self.editButton
         
@@ -125,7 +134,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     
     func configureCell(photoCell: PhotoCell, photo: Photo, indexPath: NSIndexPath) {
         
-        // TODO: Set Cell's Placeholder Image 
+        photoCell.imageView.image = UIImage(named: "placeholder")
         
         if photo.image != nil {
             photoCell.imageView.image = photo.image
@@ -155,7 +164,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         
         let photo = self.pin.photos[indexPath.row]
         
-        if self.editButton.title == EDIT_ON {
+        if self.editButton.title == Constants.EDIT_ON {
             
             // 1. Remove Image from the Documents Directory
             VTSingleton.Caches.imageCache.deleteImage(withIdentifier: photo.id)
@@ -181,6 +190,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     func newCollectionButtonPressed() {
         print("newCollectionButtonPressed")
         
+        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+            // Disable the New Collection Button
+            self.newCollectionButton.enabled = false
+            self.newCollectionButton.alpha = 0.5
+        }
+        
         // Increment Page Number
         VTSingleton.sharedInstance().currentPageNumber++
         
@@ -197,7 +212,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
                     
                     // Delete the Existing Photos from the Pin
                     for photo in self.pin.photos {
+                        // Delete Photo from Core Data
                         self.sharedContext.deleteObject(photo)
+                        
+                        // Remove Image from the Documents Directory
+                        VTSingleton.Caches.imageCache.deleteImage(withIdentifier: photo.id)
                     }
                     
                     // Add the New Photos to the Pin 
@@ -213,6 +232,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
                     // Reload the Collection View
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
                         self.collectionView.reloadData()
+                        
+                        VTSingleton.sharedInstance().backgroundThread(3.0, completion: { () -> Void in
+                            // Enable the New Collection Button
+                            self.newCollectionButton.enabled = true
+                            self.newCollectionButton.alpha = 1.0
+
+                        })
+                        
                     })
                 }
             }
@@ -222,10 +249,24 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     func toggleEditMode(barItem: UIBarButtonItem) {
         print("\(barItem.title)")
         
-        if barItem.title! == EDIT_ON {
-            barItem.title = EDIT_OFF
-        }else {
-            barItem.title = EDIT_ON
+        // Edit Off
+        if barItem.title! == Constants.EDIT_ON {
+            barItem.title = Constants.EDIT_OFF
+            barItem.tintColor = UIColor.blackColor()
+            
+            // Hide Edit Cell Button and Show New Collection Button
+            self.editCellButton.hidden = true
+            self.newCollectionButton.hidden = false
+        }
+        
+        // Edit On
+        else {
+            barItem.title = Constants.EDIT_ON
+            barItem.tintColor = UIColor.redColor()
+            
+            // Show Edit Cell Button and Hide New Collection Button
+            self.editCellButton.hidden = false
+            self.newCollectionButton.hidden = true
         }
     }
     
