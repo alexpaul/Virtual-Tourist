@@ -105,7 +105,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
         
         self.navigationItem.rightBarButtonItem = self.editButton
         
-        if self.pin.photos.count == 0 {self.noImagesLabel.hidden = false}
+        if (self.pin.photos.count == 0) self.noImagesLabel.hidden = false
         
         // Setup the Map View
         self.mapView.region = self.region
@@ -188,7 +188,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     // MARK: - Actions
     
     func newCollectionButtonPressed() {
-        print("newCollectionButtonPressed")
+
         
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             // Disable the New Collection Button
@@ -247,7 +247,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     }
     
     func toggleEditMode(barItem: UIBarButtonItem) {
-        print("\(barItem.title)")
+
         
         // Edit Off
         if barItem.title! == Constants.EDIT_ON {
@@ -283,7 +283,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDataSource, UI
     // MARK: - Collection View Flow Layout Delegate Methods
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAtIndex section: Int) -> CGFloat {
-        print("minimumInteritemSpacingForSectionAtIndex")
+
         return 1
     }
 
